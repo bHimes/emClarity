@@ -53,14 +53,21 @@ else
 end
 
 doHalfGrid = 0;
-useNan =0;
-if nargin > 8
+extrapVal = 0;
+if nargin == 9
   if isa(varargin{1},'fourierTransformer')
     doHalfGrid = 1;
     hgSHIFTS = SHIFTS; SHIFTS = [0,0];
     hgMAG = 1/MAG; MAG = 1;
+    
+    if length(varargin) > 1
+      extrapVal = varargin{2};
+      if ~isnumeric(extrapVal)
+        error('Extrapolation value passed to resample2d is non numeric!')
+      end
+    end
   elseif isnan(varargin{1})
-    useNan = 1;
+    extrapVal = nan;
   else
     error('did not recognize the varargin');
   end
@@ -201,16 +208,14 @@ if ( useGPU )
 
   else
     
-    if (useNan)
-      TRANS_IMAGE = interpn(x1,y1,stackIN,Xnew,Ynew,'linear',NaN);
-    else
-       TRANS_IMAGE = interpn(x1,y1,stackIN,Xnew,Ynew,'linear',mean(stackIN(:)));
-    end
+
+    TRANS_IMAGE = interpn(x1,y1,stackIN,Xnew,Ynew,'linear',extrapVal);
+
     
   end
 else
   TRANS_IMAGE = interpn(x1,y1,stackIN,Xnew,Ynew,'spline',NaN);
-  TRANS_IMAGE(isnan(TRANS_IMAGE)) = mean(TRANS_IMAGE(~isnan(TRANS_IMAGE)));
+  TRANS_IMAGE(isnan(TRANS_IMAGE)) = extrapVal;
 end
 clear Xnew Ynew Znew x1 y1 z1 stackIN ANGLES SHIFTS CONVENTION METHOD DIRECTION
 

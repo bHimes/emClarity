@@ -205,9 +205,9 @@ try
   deltaZTolerance = pBH.('deltaZTolerance');
 catch
   if (do_ctf_refine)
-    deltaZTolerance = 50e-9;
-  else
     deltaZTolerance = 100e-9;
+  else
+    deltaZTolerance = 150e-9;
   end 
 end
 
@@ -225,9 +225,9 @@ try
   maxNumberOfTiles = pBH.('ctfMaxNumberOfTiles');
 catch
   if (do_ctf_refine)
-    maxNumberOfTiles = 3000;
+    maxNumberOfTiles = 8000;
   else
-    maxNumberOfTiles = 10000;
+    maxNumberOfTiles = 16000;
   end
 end
 
