@@ -30,8 +30,8 @@ zip_location="NONE"
 
 #binaryOutName="${major}_${minor}_${bugss}_${shortHead}"
 #scriptOutName="mcr_v19a_${shortHead}"
-binaryOutName="testTmpDir"
-scriptOutName="testTmpDir_v19a"
+binaryOutName="testAllAdds"
+scriptOutName="testAllAdds_v19a"
 
 # You may need to modify this line. 
 #     I have "matlab19a" on my path to point to the specific matlab install I want to use.

@@ -913,9 +913,17 @@ clear fout famp1 famp2 fphase1 fphase2
   nCol = length(fitFSC);
   fscMat = zeros(length(osX),nCol+1);
   fscMat(:,1) = osX;
+  nToAverage = 1;
   for iCol = 1:nCol
     fscMat(:,iCol+1) = fnval(fitFSC{iCol},osX);
+    if (iCol > 1)
+      fscMat(:,2) = fscMat(:,2) + fscMat(:,iCol+1);
+      nToAverage  = nToAverage + 1;
+    end
   end
+  fscMat(:,2) = fscMat(:,2) ./ nToAverage;
+  spherical_fsc = fscMat(:,2);
+  
   fscMat = fscMat';
   nRow = 1; 
   nTot = 1;
@@ -933,7 +941,7 @@ clear fout famp1 famp2 fphase1 fphase2
 
   if (flgCones)
       
-     figure('Visible','off'), plot(osX,fnval(fitFSC{1},osX),'kd','MarkerSize',2.5); hold on;
+     figure('Visible','off'), plot(osX,spherical_fsc,'kd','MarkerSize',2.5); hold on;
      plot(osX, oneBIT,'c');     
      plot(osX, halfBIT,'b'); 
      plot(osX, 0.*osX,'k');
