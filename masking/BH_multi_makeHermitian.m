@@ -37,7 +37,7 @@ else
   fullXform = zeros(originalSize,'single','gpuArray');   
 end
 
-hermitianMask = EMC_maskIndex('nc2nc', originalSize, 'GPU',{});
+hermitianMask = EMC_maskIndex('c2c', originalSize, 'GPU',{});
 fullXform(1:size(halfXform,1), :, :) = halfXform;
 fullXform = fullXform(hermitianMask);
       

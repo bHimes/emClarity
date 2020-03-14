@@ -25,7 +25,19 @@ tiltStart = 1;
 
 % Test David's new super sampling in reconstruction. No check that this
 % version (currently 4.10.40) is properly sourced.
-useSuperSample = 0;
+super_sample = '';
+expand_lines = '';
+% if (useSuperSample > 0)
+%   [s,v] = system('cat $IMOD_DIR/VERSION');
+%   v = split(v,'.');
+%   if (str2num(v{1}) < 4 || (str2num(v{2}) < 10 && str2num(v{3}) < 40))
+%     fprintf('Warning: imod version is too old for supersampling\n');
+%     useSuperSample = '';
+%     
+%   end
+% else
+%   
+% end%
 
 %default to cycle number zero for
 %determining mean z height of particles
@@ -126,7 +138,7 @@ else
 end
 fprintf('tmpCache is %s\n',tmpCache);
 system(sprintf('mkdir -p %s',tmpCache));
-
+system(sprintf('mkdir -p %s','cache')); % This should exist, but to be safe.
 if (recWithoutMat)
   if (loadSubTomoMeta)
     load(sprintf('%s.mat', pBH.('subTomoMeta')), 'subTomoMeta');
@@ -337,7 +349,7 @@ end
 % All data is handled through disk i/o so everything unique created in the 
 % parfor is also destroyed there as well.
 parfor iGPU = 1:nGPUs
-% for iGPU = 1:nGPUs 
+% % % % % for iGPU = 1:nGPUs 
   gpuDevice(gpuList(iGPU));
   % Loop over each tilt 
   for iTilt = iterList{gpuList(iGPU)}
@@ -603,7 +615,7 @@ parfor iGPU = 1:nGPUs
           end
           
           rawTLT = sprintf('cache/%s_%d.rawtlt',tiltList{iTilt},iTomo);
-          rawTLT_file = fopen(rawTLT, 'w');
+          rawTLT_file = fopen(rawTLT, 'w')'
           fprintf(rawTLT_file,'%f\n', TA');
           fclose(rawTLT_file);
           
@@ -646,23 +658,16 @@ parfor iGPU = 1:nGPUs
           tiltChunks(end) = iCoords(iTomo,3);
           totalSlices = [tiltChunks(1),tiltChunks(end)];
 
-          if (useSuperSample > 0)
+  
             
-            rCMD = sprintf(['tilt -SuperSampleFactor %d -ExpandInputLines -input %s -output %s.TMPPAD -TILTFILE %s -UseGPU %d ', ...
-                         '-WIDTH %d -COSINTERP 0 -THICKNESS %d -SHIFT %f,%f '],...
-                         useSuperSample, outputStack, reconName, rawTLT, gpuList(iGPU), ...
-                         iCoords(iTomo,1),floor(sectionList{iT}(iSection,5))+2*padRec,...
-                         iCoords(iTomo,5),sectionList{iT}(iSection,6));
+          rCMD = sprintf(['tilt %s %s -input %s -output %s.TMPPAD -TILTFILE %s -UseGPU %d ', ...
+                       '-WIDTH %d -COSINTERP 0 -THICKNESS %d -SHIFT %f,%f '],...
+                       super_sample, expand_lines, ...
+                       outputStack, reconName, rawTLT, gpuList(iGPU), ...
+                       iCoords(iTomo,1),floor(sectionList{iT}(iSection,5))+2*padRec,...
+                       iCoords(iTomo,5),sectionList{iT}(iSection,6));
                        
-          else
-            
-            rCMD = sprintf(['tilt -input %s -output %s.TMPPAD -TILTFILE %s -UseGPU %d ', ...
-             '-WIDTH %d -COSINTERP 0 -THICKNESS %d -SHIFT %f,%f '],...
-             outputStack, reconName, rawTLT, gpuList(iGPU), ...
-             iCoords(iTomo,1),floor(sectionList{iT}(iSection,5))+2*padRec,...
-             iCoords(iTomo,5),sectionList{iT}(iSection,6));
 
-          end
 
           % Explicitly set Radial to Nyquist         
           if (flgLocal)
